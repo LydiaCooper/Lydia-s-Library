@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Lydia's Bookshelf</title>
+    <style>
+        body {
+            background-color: rgb(207, 230, 248);
+        } 
+    </style>
+    <script>
+        async function loadBooks() {
+            let response = await fetch('/books');
+            let books = await response.json();
+            let booksList = document.getElementById('books-list');
+            booksList.innerHTML = '';
+            for (let book of books) {
+                let li = document.createElement('li');
+                li.textContent = `Title: ${book.title}, Author: ${book.author}, Genre: ${book.genre}, Read Status: ${book.read_status}, Publish Year: ${book.publication_year}, Goodreads Rating: ${book.goodreads_rating}`;
+                booksList.appendChild(li);
+            }
+        }
+    
+        async function searchBooks() {
+            let title = document.getElementById('title-input').value;
+            let author = document.getElementById('author-input').value;
+            let genre = document.getElementById('genre-input').value;
+            let read_status = document.getElementById('read-status-input').value;
+            let publish_year = document.getElementById('publish-year-input').value;
+            let goodreads_rating = document.getElementById('goodreads-rating-input').value;
+            let url = `/search?title=${title}&author=${author}&genre=${genre}&read_status=${read_status}&publish_year=${publish_year}&goodreads_rating=${goodreads_rating}`;
+            let response = await fetch(url);
+            let results = await response.json();
+            let searchResults = document.getElementById('search-results');
+            searchResults.innerHTML = '';
+            results.forEach(book => {
+                let li = document.createElement('li');
+                li.textContent = `Title: ${book.title}, Author: ${book.author}, Genre: ${book.genre}, Read Status: ${book.read_status}, Publish Year: ${book.publication_year}, Goodreads Rating: ${book.goodreads_rating}`;
+                searchResults.appendChild(li);
+            });
+        }
+    </script>
+</head>
+<body>
+    <h1>Lydia's Bookshelf</h1>
+    <h2> Here is where I keep track of my reading habits, including what what I'm currently reading, want to read, and have read.</h2>
+
+    <p> For each of the books in the library, I have included details such as title, author, publication year, reading category, as well as their <a href="https://www.goodreads.com/">Goodreads</a> rating and my own personal rating.</p>
+
+    <p> To search my virtual bookshelf, please use the form below:</p>
+    <form onsubmit="event.preventDefault(); searchBooks()">
+        <label for="title-input">Title:</label><br>
+        <input type="text" id="title-input"><br>
+        <label for="author-input">Author:</label><br>
+        <input type="text" id="author-input"><br>
+        <label for="genre-input">Genre:</label><br>
+        <input type="text" id="genre-input"><br>
+        <label for="read-status-input">Read Status:</label><br>
+        <input type="text" id="read-status-input"><br>
+        <label for="publish-year-input">Publish Year:</label><br>
+        <input type="text" id="publish-year-input"><br>
+        <label for="goodreads-rating-input">Goodreads Rating:</label><br>
+        <select id="goodreads-rating-input">
+            <option value="">Any</option>
+            <option value="1">Higher than 1 star</option>
+            <option value="2">Higher than 2 stars</option>
+            <option value="3">Higher than 3 stars</option>
+            <option value="4">Higher than 4 stars</option>
+        </select><br><br>
+        <button type="submit">Search</button><br>
+    </form><br>
+    <ul id="results-list"></ul>
+
+    <p>If you have any reading recommendations for me, please enter them below:</p>
+    <form action="/submit_recommendation" method="POST">
+        <label for="title-input">Book title:</label><br>
+        <input type="text" id="title-input" name="title"><br>
+        <label for="author-input">Author name:</label><br>
+        <input type="text" id="author-input" name="author"><br><br>
+        <input type="submit" value="Submit">
+    </form>
+</body>
+</html>
