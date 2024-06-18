@@ -1,0 +1,29 @@
+name: Deploy Website
+
+on:
+  push:
+    branches: [ main ]  # Trigger on pushes to the main branch
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest  # Workflow runs on Ubuntu virtual machines
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4  # Checkout the code from the repository
+        
+      - name: Setup Auth
+        uses: google-github-actions/auth@v2  # Authenticate with service account
+        with:
+            credentials_json: ${{ secrets.GOOGLE_CLOUD_CREDENTIALS }}  # Secret name for service account key JSON
+      
+      - name: Configure Google Cloud  # Configure access to GCP
+        uses: google-github-actions/setup-gcloud@v2  # Action to install gcloud and configure
+       
+      - name: Upload to Cloud Storage  # Upload website files to bucket
+        run: |
+          gsutil -m cp -r . gs://www.lydiacooperart.co.uk/ 
+          
+env:
+  GOOGLE_CLOUD_CREDENTIALS: ${{ secrets.GOOGLE_CLOUD_CREDENTIALS }}  # Secret name for service account key
+
