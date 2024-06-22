@@ -8,18 +8,9 @@
         } 
     </style>
     <script>
-        async function loadBooks() {
-            let response = await fetch('/books');
-            let books = await response.json();
-            let booksList = document.getElementById('books-list');
-            booksList.innerHTML = '';
-            for (let book of books) {
-                let li = document.createElement('li');
-                li.textContent = `Title: ${book.title}, Author: ${book.author}, Genre: ${book.genre}, Read Status: ${book.read_status}, Publish Year: ${book.publication_year}, Goodreads Rating: ${book.goodreads_rating}`;
-                booksList.appendChild(li);
-            }
-        }
-    
+        const SEARCH_URL = 'https://europe-west2-lydias-library.cloudfunctions.net/search_books';
+        const SUBMIT_URL = 'https://europe-west2-lydias-library.cloudfunctions.net/submit_recommendation';
+
         async function searchBooks() {
             let title = document.getElementById('title-input').value;
             let author = document.getElementById('author-input').value;
@@ -27,10 +18,10 @@
             let read_status = document.getElementById('read-status-input').value;
             let publish_year = document.getElementById('publish-year-input').value;
             let goodreads_rating = document.getElementById('goodreads-rating-input').value;
-            let url = `/search?title=${title}&author=${author}&genre=${genre}&read_status=${read_status}&publish_year=${publish_year}&goodreads_rating=${goodreads_rating}`;
+            let url = `${SEARCH_URL}?title=${title}&author=${author}&genre=${genre}&read_status=${read_status}&publish_year=${publish_year}&goodreads_rating=${goodreads_rating}`;
             let response = await fetch(url);
             let results = await response.json();
-            let searchResults = document.getElementById('search-results');
+            let searchResults = document.getElementById('results-list');
             searchResults.innerHTML = '';
             results.forEach(book => {
                 let li = document.createElement('li');
@@ -38,15 +29,30 @@
                 searchResults.appendChild(li);
             });
         }
+
+        async function submitRecommendation(event) {
+            event.preventDefault();
+            let title = document.getElementById('title-input').value;
+            let author = document.getElementById('author-input').value;
+            let response = await fetch(SUBMIT_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ title, author })
+            });
+            let result = await response.text();
+            alert(result); // Show a message or handle success
+        }
     </script>
 </head>
 <body>
     <h1>Lydia's Bookshelf</h1>
-    <h2> Here is where I keep track of my reading habits, including what what I'm currently reading, want to read, and have read.</h2>
+    <h2>Here is where I keep track of my reading habits, including what I'm currently reading, want to read, and have read.</h2>
 
-    <p> For each of the books in the library, I have included details such as title, author, publication year, reading category, as well as their <a href="https://www.goodreads.com/">Goodreads</a> rating and my own personal rating.</p>
+    <p>For each of the books in the library, I have included details such as title, author, publication year, reading category, as well as their <a href="https://www.goodreads.com/">Goodreads</a> rating and my own personal rating.</p>
 
-    <p> To search my virtual bookshelf, please use the form below:</p>
+    <p>To search my virtual bookshelf, please use the form below:</p>
     <form onsubmit="event.preventDefault(); searchBooks()">
         <label for="title-input">Title:</label><br>
         <input type="text" id="title-input"><br>
@@ -71,7 +77,7 @@
     <ul id="results-list"></ul>
 
     <p>If you have any reading recommendations for me, please enter them below:</p>
-    <form action="/submit_recommendation" method="POST">
+    <form onsubmit="submitRecommendation(event)">
         <label for="title-input">Book title:</label><br>
         <input type="text" id="title-input" name="title"><br>
         <label for="author-input">Author name:</label><br>
