@@ -1,2 +1,3 @@
 Flask==2.1.1
 functions-framework
+gunicorn==20.1.0
